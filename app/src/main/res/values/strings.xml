@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Mirror</string>
+
+    <string name="host_hint_label">服务器主机名</string>
+    <string name="host_hint">proxy.example.com</string>
+    <string name="port_hint_label">服务器端口</string>
+    <string name="port_hint">8080</string>
+    <string name="toggle_btn_off">点击开启</string>
+    <string name="toggle_btn_on">点击关闭</string>
+    <string name="host_port_text">[%1$s] %2$d</string>
+    <string name="set_proxy_notice">请先设置代理</string>
+</resources>
