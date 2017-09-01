@@ -1,21 +1,20 @@
-package com.github.app.data;
+package com.github.mirror.db.entity;
 
-public class ProxyItem {
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
+
+@Entity(tableName = "proxy_config", indices = {@Index(value = {"host", "port"}, unique = true)})
+public class ProxyConfig {
+    @PrimaryKey(autoGenerate = true)
+    public int id;
     private String host;
     private int port;
-    private boolean selected;
 
-    public ProxyItem(final String host, final int port) {
+    public ProxyConfig(final int id, final String host, final int port) {
+        this.id = id;
         this.host = host;
         this.port = port;
-    }
-
-    public boolean isSelected() {
-        return selected;
-    }
-
-    public void setSelected(final boolean selected) {
-        this.selected = selected;
     }
 
     public String getHost() {
@@ -39,7 +38,7 @@ public class ProxyItem {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final ProxyItem proxyItem = (ProxyItem) o;
+        final ProxyConfig proxyItem = (ProxyConfig) o;
 
         return port == proxyItem.port && host.equals(proxyItem.host);
 

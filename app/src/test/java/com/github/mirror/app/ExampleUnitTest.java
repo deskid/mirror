@@ -1,4 +1,4 @@
-package com.github.app;
+package com.github.mirror.app;
 
 import org.junit.Test;
 

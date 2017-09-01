@@ -1,4 +1,4 @@
-package com.github.app.utils;
+package com.github.mirror.utils;
 
 import android.content.Context;
 import android.net.ProxyInfo;
@@ -11,9 +11,10 @@ import org.powermock.reflect.Whitebox;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class WifiUtils {
 
@@ -33,10 +34,11 @@ public class WifiUtils {
         return configuration;
     }
 
-    public static Observable<ProxyInfo> getCurrentWifiProxyInfo(WifiManager wifiManager) {
-        return Observable.create((Observable.OnSubscribe<ProxyInfo>) subscriber -> {
-            if (subscriber.isUnsubscribed()) return;
-
+    public static Flowable<ProxyInfo> getCurrentWifiProxyInfo(WifiManager wifiManager) {
+        return Flowable.<ProxyInfo>create(subscriber -> {
+            if (subscriber.isCancelled()) {
+                return;
+            }
             while (!wifiManager.isWifiEnabled()) {
                 try {
                     Thread.sleep(200L);
@@ -49,14 +51,18 @@ public class WifiUtils {
             if (configuration != null) {
                 try {
                     ProxyInfo info = Whitebox.invokeMethod(configuration, "getHttpProxy");
-                    subscriber.onNext(info);
-                    subscriber.onCompleted();
+                    if (info == null) {
+                        subscriber.onError(new RuntimeException("no proxy info"));
+                    } else {
+                        subscriber.onNext(info);
+                        subscriber.onComplete();
+                    }
                 } catch (Exception e) {
                     subscriber.onError(e);
                 }
             }
 
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+        }, BackpressureStrategy.BUFFER).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public static void setHttpPorxySetting(Context context, String host, int port) {
@@ -102,6 +108,20 @@ public class WifiUtils {
                 }
             }
         }
+    }
+
+    public static String getHost(ProxyInfo proxyInfo) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return proxyInfo.getHost();
+        } else {
+            try {
+                return Whitebox.getInternalState(proxyInfo, "mHost");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return "";
     }
 
     private enum ProxySetting {

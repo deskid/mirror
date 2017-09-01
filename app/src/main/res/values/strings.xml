@@ -1,12 +1,15 @@
 <resources>
     <string name="app_name">Mirror</string>
 
+    <string name="fragment_section_title_1">当前WLAN</string>
+    <string name="fragment_section_title_2">代理列表</string>
+
     <string name="host_hint_label">服务器主机名</string>
     <string name="host_hint">proxy.example.com</string>
     <string name="port_hint_label">服务器端口</string>
     <string name="port_hint">8080</string>
-    <string name="toggle_btn_off">点击开启</string>
-    <string name="toggle_btn_on">点击关闭</string>
+    <string name="toggle_btn_off">一键开启已选 Wi-Fi 代理</string>
+    <string name="toggle_btn_on">一键关闭当前 Wi-Fi 代理</string>
     <string name="host_port_text">[%1$s] %2$d</string>
-    <string name="set_proxy_notice">请先设置代理</string>
+    <string name="set_proxy_notice">请先设置并选择一个代理</string>
 </resources>

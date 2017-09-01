@@ -1,0 +1,117 @@
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipe_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/ssid_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_margin"
+                android:drawableLeft="@drawable/ic_wifi_black_24dp"
+                android:drawablePadding="15dp"
+                android:gravity="center"
+                android:text="当前 SSID"
+                android:textColor="@color/text_main"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/ssid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_margin="@dimen/text_margin"
+                android:layout_toRightOf="@id/ssid_label"
+                android:textAlignment="textEnd"
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:text="Wi-Fi" />
+
+            <TextView
+                android:id="@+id/proxy_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ssid"
+                android:layout_margin="@dimen/text_margin"
+                android:drawableLeft="@drawable/ic_swap_vertical_circle_black_24dp"
+                android:drawablePadding="15dp"
+                android:gravity="center"
+                android:text="当前 Wi-Fi 代理"
+                android:textColor="@color/text_main"
+                android:textSize="16sp" />
+
+
+            <TextView
+                android:id="@+id/proxy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/ssid"
+                android:layout_margin="@dimen/text_margin"
+                android:layout_toRightOf="@id/proxy_label"
+                android:textAlignment="textEnd"
+                android:textColor="@color/text_main"
+                android:textSize="15sp"
+                tools:text="[110.110.110.110] 88888" />
+
+            <TextView
+                android:id="@+id/proxy_selected_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/proxy"
+                android:layout_margin="@dimen/text_margin"
+                android:drawableLeft="@drawable/ic_autorenew_black_24dp"
+                android:drawablePadding="15dp"
+                android:gravity="center"
+                android:text="已选代理配置"
+                android:textColor="@color/text_main"
+                android:textSize="16sp" />
+
+
+            <TextView
+                android:id="@+id/proxy_selected"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/proxy"
+                android:layout_margin="@dimen/text_margin"
+                android:layout_toRightOf="@id/proxy_label"
+                android:textAlignment="textEnd"
+                android:textColor="@color/text_main"
+                android:textSize="15sp"
+                tools:text="[110.110.110.110] 88888" />
+
+            <ToggleButton
+                android:id="@+id/toggleButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/proxy_selected"
+                android:layout_centerHorizontal="true"
+                android:layout_marginLeft="32dp"
+                android:layout_marginRight="32dp"
+                android:layout_marginTop="120dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/toggleButton"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="150dp"
+                android:gravity="center"
+                android:lineSpacingMultiplier="1.3"
+                android:text="由于系统安全限制，\n 暂时无法在 M 及以上的系统上更改 Wi-Fi 代理"
+                android:textColor="@color/text_gray"
+                android:textSize="11sp" />
+
+        </RelativeLayout>
+    </android.support.v4.widget.NestedScrollView>
+</android.support.v4.widget.SwipeRefreshLayout>

@@ -1,13 +1,10 @@
-package com.github.app;
+package com.github.mirror.ui;
 
-import android.content.Context;
-import android.content.SharedPreferences;
+import android.arch.lifecycle.LifecycleFragment;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
@@ -18,60 +15,67 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.github.app.data.ProxyItem;
-import com.github.app.data.ProxyItemModel;
+import com.github.mirror.R;
+import com.github.mirror.app.App;
+import com.github.mirror.db.entity.ProxyConfig;
+import com.github.mirror.db.entity.SelectedProxy;
+import com.github.mirror.viewmodel.ProxyConfigModel;
+import com.github.mirror.viewmodel.SelectedProxyModel;
 
-public class ProxyItemsFragment extends Fragment {
+import javax.inject.Inject;
 
-    private ProxyItemModel mModel;
+public class ProxyConfigListFragment extends LifecycleFragment {
+
+    @Inject
+    ProxyConfigModel.Factory mProxyConfigFactory;
+
+    @Inject
+    SelectedProxyModel.Factory mSelectedProxyFactory;
+
+    private ProxyConfigModel mProxyConfigModel;
+    private SelectedProxyModel mSelectedProxyModel;
+
     private ProxyItemsAdapter mAdapter;
+
     private AlertDialog mDeleteProxyItemDialog;
     private AlertDialog mUpdateProxyItemDialog;
     private AlertDialog mNewProxyItemDialog;
 
-    public ProxyItemsFragment() {
+    public ProxyConfigListFragment() {
     }
 
-    public static ProxyItemsFragment newInstance() {
-        return new ProxyItemsFragment();
+    public static ProxyConfigListFragment newInstance() {
+        return new ProxyConfigListFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mModel = new ProxyItemModel(getContext());
+        ((App) (getActivity().getApplication())).getAppComponent().inject(this);
+        mSelectedProxyModel = ViewModelProviders.of(getActivity(), mSelectedProxyFactory).get(SelectedProxyModel.class);
+        mProxyConfigModel = ViewModelProviders.of(getActivity(), mProxyConfigFactory).get(ProxyConfigModel.class);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mProxyConfigModel.getAllProxyConfig().observe(this, configs -> mAdapter.swipeDate(configs));
+
+        mSelectedProxyModel.getSelectedProxy().observe(this, proxy -> mAdapter.setSelectedId(proxy != null ? proxy.configId : -1));
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_proxy_items, container, false);
-        RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.list);
+        View root = inflater.inflate(R.layout.fragment_proxy_config_list, container, false);
+        RecyclerView recyclerView = root.findViewById(R.id.list);
 
-        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-        DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(), layoutManager.getOrientation());
-        recyclerView.addItemDecoration(itemDecoration);
+        mAdapter = new ProxyItemsAdapter();
 
-        mAdapter = new ProxyItemsAdapter(mModel);
         mAdapter.getPositiOnLongClicks().subscribe(pair -> showUpdateProxyItemDialog(pair.first, pair.second));
-        mAdapter.getPositiOnClicks().subscribe(pair -> {
-            int index = pair.first;
-            ProxyItem item = pair.second;
-
-            item.setSelected(!item.isSelected());
-            mModel.update(index, item);
-            mAdapter.notifyDataSetChanged();
-
-            SharedPreferences sharedPreferences = getContext().getSharedPreferences("CACHE", Context.MODE_PRIVATE);
-            if (item.isSelected()) {
-                sharedPreferences.edit().putString("host", item.getHost()).apply();
-                sharedPreferences.edit().putInt("port", item.getPort()).apply();
-            } else {
-                sharedPreferences.edit().clear().apply();
-            }
-
-        });
+        mAdapter.getPositiOnClicks().subscribe(pair -> mSelectedProxyModel.updateSelectedProxy(SelectedProxy.wrap(pair.second)));
         recyclerView.setAdapter(mAdapter);
+
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(final RecyclerView recyclerView, final RecyclerView.ViewHolder viewHolder, final RecyclerView.ViewHolder target) {
@@ -81,23 +85,25 @@ public class ProxyItemsFragment extends Fragment {
             @Override
             public void onSwiped(final RecyclerView.ViewHolder viewHolder, final int direction) {
                 int position = viewHolder.getAdapterPosition();
-                ProxyItem item = mModel.get(position);
-                showDeleteProxyItemDialog(position, item);
+                ProxyConfig item = mAdapter.getItemData(position);
+                if (item != null) {
+                    showDeleteProxyItemDialog(item);
+                }
             }
         };
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
-        FloatingActionButton fab = (FloatingActionButton) root.findViewById(R.id.fab);
+        FloatingActionButton fab = root.findViewById(R.id.fab);
         fab.setOnClickListener(view -> showNewProxyItemDialog());
         return root;
     }
 
     //todo abstract a method to show dialog
-    private void showUpdateProxyItemDialog(final int index, final ProxyItem item) {
+    private void showUpdateProxyItemDialog(final int index, final ProxyConfig item) {
         if (mUpdateProxyItemDialog == null) {
-            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.new_wifi_item, null);
+            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_proxy_config, null);
             mUpdateProxyItemDialog = new AlertDialog.Builder(getActivity())
                     .setTitle("修改代理")
                     .setView(dialogView)
@@ -121,8 +127,7 @@ public class ProxyItemsFragment extends Fragment {
                 } else {
                     item.setHost(hostEt.getText().toString());
                     item.setPort(Integer.valueOf(portEt.getText().toString()));
-                    mModel.update(index, item);
-                    mAdapter.notifyDataSetChanged();
+                    mProxyConfigModel.update(item);
                     dialog.dismiss();
                 }
             });
@@ -133,9 +138,9 @@ public class ProxyItemsFragment extends Fragment {
         }
     }
 
-    private void showDeleteProxyItemDialog(final int index, final ProxyItem item) {
+    private void showDeleteProxyItemDialog(final ProxyConfig item) {
         if (mDeleteProxyItemDialog == null) {
-            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.new_wifi_item, null);
+            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_proxy_config, null);
             mDeleteProxyItemDialog = new AlertDialog.Builder(getActivity())
                     .setTitle("删除代理？")
                     .setView(dialogView)
@@ -155,15 +160,14 @@ public class ProxyItemsFragment extends Fragment {
 
             Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
             button.setOnClickListener(view -> {
-
-                mModel.delete(index);
-                mAdapter.notifyItemRemoved(index);
+                mProxyConfigModel.delete(item);
                 dialog.dismiss();
 
             });
             Button button2 = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
             button2.setOnClickListener(view -> {
-                mAdapter.notifyItemChanged(index);
+                //cancel the delete
+                mAdapter.notifyDataSetChanged();
                 dialog.dismiss();
             });
         });
@@ -176,7 +180,7 @@ public class ProxyItemsFragment extends Fragment {
     private void showNewProxyItemDialog() {
         if (mNewProxyItemDialog == null) {
 
-            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.new_wifi_item, null);
+            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_proxy_config, null);
 
             mNewProxyItemDialog = new AlertDialog.Builder(getActivity())
                     .setTitle("新建代理")
@@ -199,8 +203,7 @@ public class ProxyItemsFragment extends Fragment {
                 if (TextUtils.isEmpty(hostEt.getText()) || TextUtils.isEmpty(portEt.getText())) {
                     Toast.makeText(getContext(), "请填写完整的代理信息", Toast.LENGTH_SHORT).show();
                 } else {
-                    mModel.add(new ProxyItem(hostEt.getText().toString(), Integer.valueOf(portEt.getText().toString())));
-                    mAdapter.notifyDataSetChanged();
+                    mProxyConfigModel.insert(new ProxyConfig(0, hostEt.getText().toString(), Integer.valueOf(portEt.getText().toString())));
                     dialog.dismiss();
                 }
             });

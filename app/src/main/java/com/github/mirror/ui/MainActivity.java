@@ -1,4 +1,4 @@
-package com.github.app;
+package com.github.mirror.ui;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -9,25 +9,23 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import com.github.logutils.DebugUtils;
+import com.github.mirror.R;
 
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tab);
-        DebugUtils.setApplicationContext(getApplicationContext());
+        setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-        ViewPager viewPager = (ViewPager) findViewById(R.id.container);
+        ViewPager viewPager = findViewById(R.id.container);
         viewPager.setAdapter(sectionsPagerAdapter);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        TabLayout tabLayout = findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
     }
 
@@ -41,9 +39,9 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return WifiFragment.newInstance();
+                    return CurrentWifiInfoFragment.newInstance();
                 case 1:
-                    return ProxyItemsFragment.newInstance();
+                    return ProxyConfigListFragment.newInstance();
             }
             return null;
         }
@@ -57,9 +55,9 @@ public class MainActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "当前Wifi";
+                    return getString(R.string.fragment_section_title_1);
                 case 1:
-                    return "代理列表";
+                    return getString(R.string.fragment_section_title_2);
             }
             return null;
         }
