@@ -6,6 +6,10 @@
 
 使用场景：测试时切换各种代理环境，charles 抓包代理
 
+### apk
+
+[Mirror-release.apk](https://raw.githubusercontent.com/deskid/mirror/master/app/release/Mirror-release.apk)
+
 ### demo
 
 ![](./art/demo.png)
