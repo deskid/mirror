@@ -1,7 +1,6 @@
 package com.github.mirror.ui;
 
 import android.app.ProgressDialog;
-import android.arch.lifecycle.LifecycleFragment;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,6 +11,7 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -30,7 +30,7 @@ import com.github.mirror.viewmodel.SelectedProxyModel;
 
 import javax.inject.Inject;
 
-public class CurrentWifiInfoFragment extends LifecycleFragment {
+public class CurrentWifiInfoFragment extends Fragment {
 
     private static final String EMPTY_PROXY_INFO = "[Direct]";
 

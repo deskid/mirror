@@ -1,9 +1,9 @@
 package com.github.mirror.ui;
 
-import android.arch.lifecycle.LifecycleFragment;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -24,7 +24,7 @@ import com.github.mirror.viewmodel.SelectedProxyModel;
 
 import javax.inject.Inject;
 
-public class ProxyConfigListFragment extends LifecycleFragment {
+public class ProxyConfigListFragment extends Fragment {
 
     @Inject
     ProxyConfigModel.Factory mProxyConfigFactory;
